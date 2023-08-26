@@ -42,11 +42,12 @@ employeeRouter.get("/",async(req,res)=>{
 
            const employees=await employeeModel.find().skip((page-1)*Page_Size).limit(Page_Size)
            res.status(200).send({
+           
                  currentPage:page,
                  totalPages:totalPages,
                  employees:employees
            })
-
+           console.log("data fetch")
      } catch (error) {
            res.status(500).send({ error: "An error occurred while fetching employees" });
      }
