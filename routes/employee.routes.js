@@ -42,12 +42,11 @@ employeeRouter.get("/",async(req,res)=>{
 
            const employees=await employeeModel.find().skip((page-1)*Page_Size).limit(Page_Size)
            res.status(200).send({
-           
                  currentPage:page,
                  totalPages:totalPages,
                  employees:employees
            })
-           console.log("data fetch")
+
      } catch (error) {
            res.status(500).send({ error: "An error occurred while fetching employees" });
      }
@@ -55,133 +54,44 @@ employeeRouter.get("/",async(req,res)=>{
 
 
 
-// employeeRouter.get("/filter",async(req,res)=>{
-//       const department=req.query.department
+employeeRouter.get("/filter",async(req,res)=>{
+      const department=req.query.department
  
-//         const emp=await employeeModel.find()
+        const emp=await employeeModel.find()
 
-//       if (!department) {
-//             return res.status(400).json({ emp });
-//         }
-
-//       try {
-//    const employeedetails=await employeeModel.find({department})
-//       res.json(employeedetails)
-
-    
-//       } catch (error) {
-//             res.status(400).send({error:error.message}) 
-//       }
-// })
-
-
-
-
-employeeRouter.get("/filter", async (req, res) => {
-      const page = parseInt(req.query.page) || 1;
-      const Page_Size = 5;
-      const department = req.query.department;
-    
       if (!department) {
-        return res.status(400).json({ message: "Department is required." });
-      }
-    
+            return res.status(400).json({ emp });
+        }
+
       try {
-        const totalEmployees = await employeeModel.countDocuments({ department });
-        const totalPages = Math.ceil(totalEmployees / Page_Size);
+   const employeedetails=await employeeModel.find({department})
+      res.json(employeedetails)
+
     
-        const employeedetails = await employeeModel
-          .find({ department })
-          .skip((page - 1) * Page_Size)
-          .limit(Page_Size);
-    
-        res.status(200).send({
-          currentPage: page,
-          totalPages: totalPages,
-          employees: employeedetails,
-        });
       } catch (error) {
-        res.status(400).send({ error: error.message });
+            res.status(400).send({error:error.message}) 
       }
-    });
-    
-
-  
+})
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-employeeRouter.get("/sortinc", async (req, res) => {
-      const page = parseInt(req.query.page) || 1;
-      const Page_Size = 5;
-    
+employeeRouter.get("/sortinc",async(req,res)=>{
       try {
-        const totalEmployees = await employeeModel.countDocuments();
-        const totalPages = Math.ceil(totalEmployees / Page_Size);
-    
-        const employeedetails = await employeeModel
-          .find()
-          .sort({ salary: 1 }) // Sort by salary in increasing order
-          .skip((page - 1) * Page_Size)
-          .limit(Page_Size);
-    
-        res.status(200).send({
-          currentPage: page,
-          totalPages: totalPages,
-          employees: employeedetails,
-        });
+            const employeedetails=await employeeModel.find().sort({salary:1})
+            res.json(employeedetails)
       } catch (error) {
-        res.status(400).send({ error: error.message });
+            res.status(400).send({error:error.message})
       }
-    });
-   
-    
-    
-    
-    
-    
-    
+})
 
-employeeRouter.get("/sortdec", async (req, res) => {
-      const page = parseInt(req.query.page) || 1;
-      const Page_Size = 5;
-  
+employeeRouter.get("/sortdec",async(req,res)=>{
       try {
-          const totalEmployees = await employeeModel.countDocuments();
-          const totalPages = Math.ceil(totalEmployees / Page_Size);
-  
-          const employeedetails = await employeeModel
-              .find()
-              .sort({ salary: -1 })
-              .skip((page - 1) * Page_Size)
-              .limit(Page_Size);
-  
-          res.status(200).send({
-              currentPage: page,
-              totalPages: totalPages,
-              employees: employeedetails
-          });
+            const employeedetails=await employeeModel.find().sort({salary:-1})
+            res.json(employeedetails)
       } catch (error) {
-          res.status(400).send({ error: error.message });
+            res.status(400).send({error:error.message})
       }
-  });
-  
-  
+})
 
 employeeRouter.patch("/:id",async(req,res)=>{
       const {id} = req.params
@@ -210,53 +120,38 @@ employeeRouter.patch("/:id",async(req,res)=>{
   });
   
  
-//  employeeRouter.get("/search", async (req, res) => {
-//       const { firstName } = req.query;
+ employeeRouter.get("/search", async (req, res) => {
+      const { firstName } = req.query;
   
-//       try {
-//           const employees = await employeeModel.find({ firstName });
-//           if (employees.length > 0) {
-//               res.status(200).send({ msg: "Employees found", employees });
-//           } else {
-//               res.status(404).send({ msg: "No employees found with the given first name" });
-//           }
-//       } catch (error) {
-//           res.status(400).send({ error: error.message });
-//       }
-//   });
+      try {
+          const employees = await employeeModel.find({ firstName });
+          if (employees.length > 0) {
+              res.status(200).send({ msg: "Employees found", employees });
+          } else {
+              res.status(404).send({ msg: "No employees found with the given first name" });
+          }
+      } catch (error) {
+          res.status(400).send({ error: error.message });
+      }
+  });
  
 
 
-employeeRouter.get("/search", async (req, res) => {
-      const { firstName } = req.query;
-      const page = parseInt(req.query.page) || 1;
-      const Page_Size = 5;
-    
-      try {
-        const totalEmployees = await employeeModel.countDocuments({ firstName });
-        const totalPages = Math.ceil(totalEmployees / Page_Size);
-    
-        const employees = await employeeModel
-          .find({ firstName })
-          .skip((page - 1) * Page_Size)
-          .limit(Page_Size);
-    
-        if (employees.length > 0) {
-          res.status(200).send({
-            currentPage: page,
-            totalPages: totalPages,
-            employees: employees,
-          });
-        } else {
-          res.status(404).send({
-            msg: "No employees found with the given first name",
-          });
-        }
-      } catch (error) {
-        res.status(400).send({ error: error.message });
-      }
-    });
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   
   
   
