@@ -100,7 +100,7 @@ employeeRouter.get("/sortinc", async (req, res) => {
     });
 
 
-    
+
 // employeeRouter.get("/sortinc",async(req,res)=>{
 //       try {
 //             const employeedetails=await employeeModel.find().sort({salary:1})
@@ -110,14 +110,46 @@ employeeRouter.get("/sortinc", async (req, res) => {
 //       }
 // })
 
-employeeRouter.get("/sortdec",async(req,res)=>{
+// employeeRouter.get("/sortdec",async(req,res)=>{
+//       try {
+//             const employeedetails=await employeeModel.find().sort({salary:-1})
+//             res.json(employeedetails)
+//       } catch (error) {
+//             res.status(400).send({error:error.message})
+//       }
+// })
+
+
+employeeRouter.get("/sortdec", async (req, res) => {
+      const page = parseInt(req.query.page) || 1;
+      const Page_Size = 5;
+    
       try {
-            const employeedetails=await employeeModel.find().sort({salary:-1})
-            res.json(employeedetails)
+        const totalEmployees = await employeeModel.countDocuments();
+        const totalPages = Math.ceil(totalEmployees / Page_Size);
+    
+        const employeedetails = await employeeModel
+          .find()
+          .sort({ salary: -1 }) // Sort by salary in decreasing order
+          .skip((page - 1) * Page_Size)
+          .limit(Page_Size);
+    
+        res.status(200).send({
+          currentPage: page,
+          totalPages: totalPages,
+          employees: employeedetails,
+        });
       } catch (error) {
-            res.status(400).send({error:error.message})
+        res.status(400).send({ error: error.message });
       }
-})
+    });
+    
+
+
+
+
+
+
 
 employeeRouter.patch("/:id",async(req,res)=>{
       const {id} = req.params
