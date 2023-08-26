@@ -120,20 +120,36 @@ employeeRouter.patch("/:id",async(req,res)=>{
   });
   
  
- employeeRouter.get("/search", async (req, res) => {
-      const { firstName } = req.query;
+//  employeeRouter.get("/search", async (req, res) => {
+//       const { firstName } = req.query;
   
+//       try {
+//           const employees = await employeeModel.find({ firstName });
+//           if (employees.length > 0) {
+//               res.status(200).send({ msg: "Employees found", employees });
+//           } else {
+//               res.status(404).send({ msg: "No employees found with the given first name" });
+//           }
+//       } catch (error) {
+//           res.status(400).send({ error: error.message });
+//       }
+//   });
+
+
+employeeRouter.get("/search", async (req, res) => {
+      const { firstName } = req.query;
+    
       try {
-          const employees = await employeeModel.find({ firstName });
-          if (employees.length > 0) {
-              res.status(200).send({ msg: "Employees found", employees });
-          } else {
-              res.status(404).send({ msg: "No employees found with the given first name" });
-          }
+        const employees = await employeeModel.find({ firstName });
+    
+        res.status(200).send({
+          employees: employees,
+        });
       } catch (error) {
-          res.status(400).send({ error: error.message });
+        res.status(400).send({ error: error.message });
       }
-  });
+    });
+    
  
 
 
