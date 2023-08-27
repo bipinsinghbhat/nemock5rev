@@ -44,7 +44,8 @@ employeeRouter.get("/",async(req,res)=>{
            res.status(200).send({
                  currentPage:page,
                  totalPages:totalPages,
-                 employees:employees
+                 employees:employees,
+                 totalEmployees:totalEmployees
            })
 
      } catch (error) {
