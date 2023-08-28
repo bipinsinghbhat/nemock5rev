@@ -20,102 +20,50 @@ employeeRouter.post("/create",async(req,res)=>{
       }
    }) 
 
-employeeRouter.get("/",async(req,res)=>{
-      const page=parseInt(req.query.page)||1
-      const Page_Size=5
-
-     try {
-           const totalEmployees=await employeeModel.countDocuments()
-           const totalPages=Math.ceil(totalEmployees/Page_Size)
-
-           const employees=await employeeModel.find().skip((page-1)*Page_Size).limit(Page_Size)
-           res.status(200).send({
-                 currentPage:page,
-                 totalPages:totalPages,
-                 employees:employees,
-                 totalEmployees:totalEmployees
-           })
-
-     } catch (error) {
-           res.status(500).send({ error: "An error occurred while fetching employees" });
-     }
-})
-
-
-
-employeeRouter.get("/filter",async(req,res)=>{
-      const department=req.query.department
- 
-        const emp=await employeeModel.find()
-
-      if (!department) {
-            return res.status(400).json({ emp });
-        }
-
-      try {
-   const employeedetails=await employeeModel.find({department})
-      res.json(employeedetails)
-
-    
-      } catch (error) {
-            res.status(400).send({error:error.message}) 
+   employeeRouter.get("/get", async (req, res) => {
+    const { page: rawPage, department, sort, search } = req.query;
+    const page = parseInt(rawPage) || 1;
+    const pageSize = 5;
+  
+    try {
+      const query = {};
+  
+      if (department) {
+        query.department = department;
       }
-})
-
-
-
-employeeRouter.get("/sortinc", async (req, res) => {
-      const page = parseInt(req.query.page) || 1;
-      const Page_Size = 5;
-    
-      try {
-        const totalEmployees = await employeeModel.countDocuments();
-        const totalPages = Math.ceil(totalEmployees / Page_Size);
-    
-        const employeedetails = await employeeModel
-          .find()
-          .sort({ salary: 1 }) // Sort by salary in increasing order
-          .skip((page - 1) * Page_Size)
-          .limit(Page_Size);
-    
-        res.status(200).send({
-          currentPage: page,
-          totalPages: totalPages,
-          employees: employeedetails,
-        });
-      } catch (error) {
-        res.status(400).send({ error: error.message });
+  
+      let sortQuery = {};
+      if (sort === "inc") {
+        sortQuery = { salary: 1 };
+      } else if (sort === "dec") {
+        sortQuery = { salary: -1 };
       }
-    });
-
-
-
-
-
-employeeRouter.get("/sortdec", async (req, res) => {
-      const page = parseInt(req.query.page) || 1;
-      const Page_Size = 5;
-    
-      try {
-        const totalEmployees = await employeeModel.countDocuments();
-        const totalPages = Math.ceil(totalEmployees / Page_Size);
-    
-        const employeedetails = await employeeModel
-          .find()
-          .sort({ salary: -1 }) // Sort by salary in decreasing order
-          .skip((page - 1) * Page_Size)
-          .limit(Page_Size);
-    
-        res.status(200).send({
-          currentPage: page,
-          totalPages: totalPages,
-          employees: employeedetails,
-        });
-      } catch (error) {
-        res.status(400).send({ error: error.message });
+  
+      let searchQuery = {};
+      if (search) {
+        searchQuery.firstName = { $regex: search, $options: "i" };
       }
-    });
-    
+  
+      const totalEmployees = await employeeModel.countDocuments(query);
+      const totalPages = Math.ceil(totalEmployees / pageSize);
+  
+      const employees = await employeeModel
+        .find(query)
+        .sort(sortQuery)
+        .find(searchQuery)
+        .skip((page - 1) * pageSize)
+        .limit(pageSize);
+  
+      res.status(200).send({
+        currentPage: page,
+        totalPages: totalPages,
+        employees: employees,
+        totalEmployees: totalEmployees,
+      });
+    } catch (error) {
+      res.status(500).send({ error: "An error occurred while fetching employees" });
+    }
+  });
     
 
 
@@ -154,19 +102,19 @@ employeeRouter.patch("/:id",async(req,res)=>{
 
 
 
-employeeRouter.get("/search", async (req, res) => {
-      const { firstName } = req.query;
+// employeeRouter.get("/search", async (req, res) => {
+//       const { firstName } = req.query;
     
-      try {
-        const employees = await employeeModel.find({ firstName });
+//       try {
+//         const employees = await employeeModel.find({ firstName });
     
-        res.status(200).send({
-          employees: employees,
-        });
-      } catch (error) {
-        res.status(400).send({ error: error.message });
-      }
-    });
+//         res.status(200).send({
+//           employees: employees,
+//         });
+//       } catch (error) {
+//         res.status(400).send({ error: error.message });
+//       }
+//     });
     
  
 module.exports={
